@@ -549,6 +549,43 @@ impl<'a> StateWorkingSet<'a> {
     }
 }
 
+impl<'a> miette::SourceCode for StateWorkingSet<'a> {
+    fn read_span<'b>(
+        &'b self,
+        span: &miette::SourceSpan,
+        context_lines_before: usize,
+        context_lines_after: usize,
+    ) -> Result<Box<dyn miette::SpanContents + 'b>, miette::MietteError> {
+        for (file_id, (file_src, start, end)) in self.files().enumerate() {
+            if span.offset() >= *start && span.offset() + span.len() <= *end {
+                let filename = self.get_filename(file_id);
+                // TODO: Translate the global `start` and `end` into a local
+                // span, then just run regular `read_span` method on
+                // `file_src`. (how tf do you do this?...)
+                let local_offset = span.offset() - *start;
+                let len = end - start;
+                let local_span = (local_offset, len);
+                let span_contents = file_src.read_span(
+                    &local_span.into(),
+                    context_lines_before,
+                    context_lines_after,
+                )?;
+                return Ok(Box::new(miette::MietteSpanContents::new_named(
+                    &filename,
+                    span_contents.data(),
+                    span_contents.line(),
+                    span_contents.column(),
+                )));
+            }
+        }
+
+        panic!(
+            "internal error: can't find span in parser state: {:?}",
+            span
+        )
+    }
+}
+
 impl<'a> codespan_reporting::files::Files<'a> for StateWorkingSet<'a> {
     type FileId = usize;
 
