@@ -35,9 +35,21 @@ fn convert_span_to_diag(
 
 /// This error exists so that we can defer SourceCode handling. It simply
 /// forwards most methods, except for `.source_code()`, which we provide.
-#[derive(Debug, Error)]
+#[derive(Error)]
 #[error("{0}")]
-struct CliError<'src>(&'src dyn miette::Diagnostic, &'src StateWorkingSet<'src>);
+struct CliError<'src>(
+    &'src (dyn miette::Diagnostic + Send + Sync + 'static),
+    &'src StateWorkingSet<'src>,
+);
+
+impl std::fmt::Debug for CliError<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CliError")
+            .field("diagnostic", &self.0)
+            .field("working_set", &"<redacted>");
+        Ok(())
+    }
+}
 
 impl<'src> miette::Diagnostic for CliError<'src> {
     fn code<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {

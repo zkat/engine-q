@@ -549,7 +549,7 @@ impl<'a> StateWorkingSet<'a> {
     }
 }
 
-impl<'a> miette::SourceCode for StateWorkingSet<'a> {
+impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
     fn read_span<'b>(
         &'b self,
         span: &miette::SourceSpan,
