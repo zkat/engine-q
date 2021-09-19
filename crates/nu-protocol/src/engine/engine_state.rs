@@ -559,9 +559,6 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
         for (file_id, (file_src, start, end)) in self.files().enumerate() {
             if span.offset() >= *start && span.offset() + span.len() <= *end {
                 let filename = self.get_filename(file_id);
-                // TODO: Translate the global `start` and `end` into a local
-                // span, then just run regular `read_span` method on
-                // `file_src`. (how tf do you do this?...)
                 let local_offset = span.offset() - *start;
                 let len = end - start;
                 let local_span = (local_offset, len);
