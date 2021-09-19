@@ -576,10 +576,7 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
             }
         }
 
-        panic!(
-            "internal error: can't find span in parser state: {:?}",
-            span
-        )
+        Err(miette::MietteError::OutOfBounds)
     }
 }
 
