@@ -2,8 +2,10 @@ use core::ops::Range;
 
 use codespan_reporting::diagnostic::{Diagnostic, Label};
 use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
+use miette::{LabeledSpan, Severity, SourceCode};
 use nu_parser::ParseError;
 use nu_protocol::{engine::StateWorkingSet, ShellError, Span};
+use thiserror::Error;
 
 fn convert_span_to_diag(
     working_set: &StateWorkingSet,
@@ -29,6 +31,37 @@ fn convert_span_to_diag(
         "internal error: can't find span in parser state: {:?}",
         span
     )
+}
+
+#[derive(Debug, Error)]
+#[error("{0}")]
+struct CliError<'src>(&'src dyn Diagnostic, &'src [u8]);
+
+impl<'src> miette::Diagnostic for CliError<'src> {
+    fn code<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        self.0.code()
+    }
+
+    fn severity(&self) -> Option<Severity> {
+        self.0.severity()
+    }
+
+    fn help<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        self.0.help()
+    }
+
+    fn url<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        self.0.url()
+    }
+
+    fn labels<'a>(&'a self) -> Option<Box<dyn Iterator<Item = LabeledSpan> + 'a>> {
+        self.0.labels()
+    }
+
+    // Finally, we redirect the source_code method to our own source.
+    fn source_code(&self) -> Option<&dyn SourceCode> {
+        Some(&self.1)
+    }
 }
 
 pub fn report_parsing_error(
