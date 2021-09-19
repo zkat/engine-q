@@ -79,13 +79,11 @@ impl<'src> miette::Diagnostic for CliError<'src> {
 }
 
 pub fn report_parsing_error(
-    working_set: &StateWorkingSet,
-    error: &ParseError,
+    working_set: &'static StateWorkingSet,
+    error: &'static ParseError,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    eprintln!(
-        "{:?}",
-        CliError(error, working_set).into::<miette::Report>()
-    );
+    let report: miette::Report = CliError::<'static>(error, working_set).into();
+    eprintln!("{:?}", report);
     Ok(())
 }
 
