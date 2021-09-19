@@ -33,6 +33,8 @@ fn convert_span_to_diag(
     )
 }
 
+/// This error exists so that we can defer SourceCode handling. It simply
+/// forwards most methods, except for `.source_code()`, which we provide.
 #[derive(Debug, Error)]
 #[error("{0}")]
 struct CliError<'src>(&'src dyn miette::Diagnostic, &'src StateWorkingSet<'src>);

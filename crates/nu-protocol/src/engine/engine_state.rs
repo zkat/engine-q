@@ -571,7 +571,7 @@ impl<'a> miette::SourceCode for StateWorkingSet<'a> {
                     context_lines_after,
                 )?;
                 return Ok(Box::new(miette::MietteSpanContents::new_named(
-                    &filename,
+                    filename,
                     span_contents.data(),
                     span_contents.line(),
                     span_contents.column(),
