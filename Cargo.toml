@@ -10,7 +10,6 @@ members = ["crates/nu-cli", "crates/nu-engine", "crates/nu-parser", "crates/nu-c
 
 [dependencies]
 reedline = { git = "https://github.com/jntrnr/reedline", branch = "main" }
-codespan-reporting = "0.11.1"
 nu-cli = { path="./crates/nu-cli" }
 nu-command = { path="./crates/nu-command" }
 nu-engine = { path="./crates/nu-engine" }

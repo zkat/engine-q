@@ -1,5 +1,5 @@
 use miette::{IntoDiagnostic, Result};
-use nu_cli::{report_parsing_error, report_shell_error, NuCompleter, NuHighlighter};
+use nu_cli::{report_error, NuCompleter, NuHighlighter};
 use nu_command::create_default_context;
 use nu_engine::eval_block;
 use nu_parser::parse;
@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             let mut working_set = StateWorkingSet::new(&*engine_state);
             let (output, err) = parse(&mut working_set, Some(&path), &file, false);
             if let Some(err) = err {
-                let _ = report_parsing_error(&working_set, &err);
+                report_error(&working_set, &err);
 
                 std::process::exit(1);
             }
@@ -45,7 +45,7 @@ fn main() -> Result<()> {
                 let engine_state = engine_state.borrow();
                 let working_set = StateWorkingSet::new(&*engine_state);
 
-                let _ = report_shell_error(&working_set, &err);
+                report_error(&working_set, &err);
 
                 std::process::exit(1);
             }
@@ -104,7 +104,7 @@ fn main() -> Result<()> {
                             false,
                         );
                         if let Some(err) = err {
-                            let _ = report_parsing_error(&working_set, &err);
+                            report_error(&working_set, &err);
                             continue;
                         }
                         (output, working_set.render())
@@ -125,7 +125,7 @@ fn main() -> Result<()> {
                             let engine_state = engine_state.borrow();
                             let working_set = StateWorkingSet::new(&*engine_state);
 
-                            let _ = report_shell_error(&working_set, &err);
+                            report_error(&working_set, &err);
                         }
                     }
                 }
