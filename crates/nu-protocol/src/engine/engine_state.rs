@@ -562,7 +562,11 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
                     start: *start,
                     end: *end,
                 };
-                let span_contents = self.get_span_contents(our_span).read_span(span, 1, 1)?;
+                let span_contents = self.get_span_contents(our_span).read_span(
+                    span,
+                    context_lines_before,
+                    context_lines_after,
+                )?;
                 return Ok(Box::new(miette::MietteSpanContents::new_named(
                     filename.clone(),
                     span_contents.data(),
