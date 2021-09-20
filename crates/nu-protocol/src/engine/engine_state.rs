@@ -559,9 +559,7 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
         for (file_id, (file_src, start, end)) in self.files().enumerate() {
             if span.offset() >= *start && span.offset() + span.len() <= *end {
                 let filename = self.get_filename(file_id);
-                let local_offset = span.offset() - *start;
-                let len = end - start;
-                let local_span = (local_offset, len);
+                let local_span = (*start, end - start);
                 let span_contents = file_src.read_span(
                     &local_span.into(),
                     context_lines_before,
@@ -570,8 +568,10 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
                 return Ok(Box::new(miette::MietteSpanContents::new_named(
                     filename,
                     span_contents.data(),
+                    span_contents.span().clone(),
                     span_contents.line(),
                     span_contents.column(),
+                    span_contents.line_count(),
                 )));
             }
         }

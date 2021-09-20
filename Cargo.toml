@@ -17,7 +17,7 @@ nu-engine = { path="./crates/nu-engine" }
 nu-parser = { path="./crates/nu-parser" }
 nu-protocol = { path = "./crates/nu-protocol" }
 nu-table = { path = "./crates/nu-table" }
-
+miette = { path = "../miette" }
 # mimalloc = { version = "*", default-features = false }
 
 [dev-dependencies]

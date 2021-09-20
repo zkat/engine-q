@@ -2,7 +2,7 @@ use core::ops::Range;
 
 use codespan_reporting::diagnostic::{Diagnostic, Label};
 use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
-use miette::{LabeledSpan, Severity, SourceCode};
+use miette::{LabeledSpan, MietteHandler, ReportHandler, Severity, SourceCode};
 use nu_parser::ParseError;
 use nu_protocol::{engine::StateWorkingSet, ShellError, Span};
 use thiserror::Error;
@@ -44,9 +44,7 @@ struct CliError<'src>(
 
 impl std::fmt::Debug for CliError<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("CliError")
-            .field("diagnostic", &self.0)
-            .field("working_set", &"<redacted>");
+        MietteHandler::default().debug(self, f)?;
         Ok(())
     }
 }
@@ -78,13 +76,8 @@ impl<'src> miette::Diagnostic for CliError<'src> {
     }
 }
 
-pub fn report_parsing_error(
-    working_set: &'static StateWorkingSet,
-    error: &'static ParseError,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let report: miette::Report = CliError::<'static>(error, working_set).into();
-    eprintln!("{:?}", report);
-    Ok(())
+pub fn report_parsing_error(working_set: &StateWorkingSet, error: &ParseError) {
+    eprintln!("Error: {:?}", CliError(error, working_set));
 }
 
 pub fn report_shell_error(

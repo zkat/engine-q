@@ -134,14 +134,14 @@ pub enum ParseError {
     #[diagnostic(code(nu::parser::extra_columns), url(docsrs))]
     ExtraColumns(
         usize,
-        #[label("expected {0} column{}", if *self.0 == 1 { "" } else { "s" })] Span,
+        #[label("expected {0} column{}", if *.0 == 1 { "" } else { "s" })] Span,
     ),
 
     #[error("Missing columns.")]
     #[diagnostic(code(nu::parser::missing_columns), url(docsrs))]
     MissingColumns(
         usize,
-        #[label("expected {0} column{}", if *self.0 == 1 { "" } else { "s" })] Span,
+        #[label("expected {0} column{}", if *.0 == 1 { "" } else { "s" })] Span,
     ),
 
     #[error("{0}")]
