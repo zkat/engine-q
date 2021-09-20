@@ -562,22 +562,28 @@ impl<'a> miette::SourceCode for &StateWorkingSet<'a> {
                     start: *start,
                     end: *end,
                 };
-                let span_contents = self.get_span_contents(our_span).read_span(
-                    span,
+                // We need to move to a local span because we're only reading
+                // the specific file contents via self.get_span_contents.
+                let local_span = (span.offset() - *start, span.len()).into();
+                let span_contents = self.get_span_contents(our_span);
+                let span_contents = span_contents.read_span(
+                    &local_span,
                     context_lines_before,
                     context_lines_after,
                 )?;
+                let content_span = span_contents.span();
+                // Back to "global" indexing
+                let retranslated = (content_span.offset() + start, content_span.len()).into();
                 return Ok(Box::new(miette::MietteSpanContents::new_named(
                     filename.clone(),
                     span_contents.data(),
-                    span_contents.span().clone(),
+                    retranslated,
                     span_contents.line(),
                     span_contents.column(),
                     span_contents.line_count(),
                 )));
             }
         }
-
         Err(miette::MietteError::OutOfBounds)
     }
 }
